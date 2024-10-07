@@ -125,8 +125,17 @@ import prepareData from './prepareData'
 import groupWords from './groupWords'
 
 ipcMain.on('process-subtitles', (event, paths) => {
+  // Garantindo que paths seja um array
+  if (!Array.isArray(paths)) {
+    paths = [paths] // Se não for array, transformamos em um array
+  }
+
   pathsToRows(paths)
     .then((rows) => prepareData(rows))
     .then((words) => groupWords(words))
     .then((groupedWords) => event.reply('process-subtitles', groupedWords))
+    .catch((error) => {
+      console.error('Erro ao processar legendas:', error)
+      event.reply('process-subtitles-error', error.message)
+    })
 })
